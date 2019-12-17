@@ -1,0 +1,1875 @@
+options {
+  LOOKAHEAD = 1;
+}
+
+PARSER_BEGIN(Parser)
+
+import java.util.*;
+public class Parser{
+	
+}
+
+// Classes defining the Abstract Syntax Tree
+
+abstract class Exp {}
+class Num extends Exp {
+    int value;
+    Num(int v) {value = v;}
+    public String toString() {return value + "";}
+}
+class Id extends Exp {
+	String value;
+	Id(String v) {value = v;}
+	public String toString() {return value + "";}
+}
+class Module extends Exp{
+	String value;
+    Module(String v) {value = v;}
+    public String toString() {return value + "";}
+}
+class This extends Exp{
+	String value;
+    This(String v) {value = v;}
+    public String toString() {return value + "";}
+}
+class Stroke extends Exp{
+	String value;
+    Stroke(String v) {value = v;}
+    public String toString() {return value + "";}
+}
+class LBracket extends Exp{
+	String value;
+    LBracket(String v) {value = v;}
+    public String toString() {return value + "";}
+}
+class RBracket extends Exp{
+	String value;
+    RBracket(String v) {value = v;}
+    public String toString() {return value + "";}
+}
+class Exactly extends Exp{
+	String value;
+    Exactly(String v) {value = v;}
+    public String toString() {return value + "";}
+}
+class BinaryExp extends Exp {
+    Exp op;
+    Exp left, right;
+    BinaryExp() {};
+    BinaryExp(Exp o, Exp l, Exp r) {op = o; left = l; right = r;}
+    public void setOp(Exp o) {op = o;}
+    public void setLeft(Exp e) {left = e;}
+    public void setRight(Exp e) {right = e;}
+    public String toString() {return "(" + op + " " + left + " " + right + ")";}
+}
+class UnaryExp extends Exp {
+    Exp op;
+    Exp exp;
+    UnaryExp(){}
+    UnaryExp(Exp o, Exp e) {op = o; exp = e;}
+    public void setOp(Exp o) {op = o;}
+    public void setExp(Exp e) {exp = e;}
+    public String toString() {return "(" + op + " " + exp + ")";}
+}
+class Specification extends Exp{
+	Exp mdecl;
+	List<Exp> odecl_list;
+	List<Exp> paragraph_list;
+	Specification() { odecl_list = new ArrayList<Exp>(); paragraph_list = new ArrayList<Exp>();}
+	public void addOpenDecl(Exp o) {odecl_list.add(o);}
+	public void addParagraph(Exp f) {paragraph_list.add(f);}
+	public void setModule(Exp m) {mdecl = m;}
+	public String toString()
+	{
+		String s = "(Specification \n";
+		if(mdecl != null){
+			s += mdecl + "\n";
+		}
+		for(int i = 0; i <odecl_list.size(); ++i){
+			s += odecl_list.get(i).toString() + "\n";
+		}
+		for(int i = 0; i <paragraph_list.size(); ++i){
+			s += paragraph_list.get(i).toString() + "\n";
+		}
+		s += ")";
+		return s;
+	}
+}
+class ModuleDeclaration extends Exp{
+	String name;
+	ModuleDeclaration(String n) {name = n;}
+	public String toString() {return "(Module: " + name + " )";}
+}
+class Open extends Exp{
+	String value;
+	Open(String v) {value = v;}
+	public String toString() {return value + "";}
+}
+class Univ extends Exp{
+	String value;
+	Univ(String v) {value = v;}
+	public String toString() {return value + "";}
+}
+class Int extends Exp{
+	String value;
+	Int(String v) {value = v;}
+	public String toString() {return value + "";}
+}
+class Seqint extends Exp{
+	String value;
+	Seqint(String v) {value = v;}
+	public String toString() {return value + "";}
+}
+class As extends Exp{
+	String value;
+	As(String v) {value = v;}
+	public String toString() {return value + "";}
+}
+class Private extends Exp{
+	String value;
+	Private(String v) {value = v;}
+	public String toString() {return value + "";}
+}
+class Comma extends Exp{
+	String value;
+	Comma(String v) {value = v;}
+	public String toString() {return value + "";}
+}
+class OpenDeclaration extends Exp{ 
+	String name;
+	OpenDeclaration(String n) {name = n;}
+	public String toString() {return "(Open " + name + ")";}
+}
+class EqualSign extends Exp{
+	String value;
+	EqualSign(String v) {value = v;}
+	public String toString() {return value + "";}
+}
+class Inclusion extends Exp{
+	String value;
+	Inclusion(String v) {value = v;}
+	public String toString() {return value + "";}
+}
+class Lesser extends Exp{
+	String value;
+	Lesser(String v) {value = v;}
+	public String toString() {return value + "";}
+}
+class Greater extends Exp{
+	String value;
+	Greater(String v) {value = v;}
+	public String toString() {return value + "";}
+}
+class LesserOrEqual extends Exp{
+	String value;
+	LesserOrEqual(String v) {value = v;}
+	public String toString() {return value + "";}
+}
+class GreaterOrEqual extends Exp{
+	String value;
+	GreaterOrEqual(String v) {value = v;}
+	public String toString() {return value + "";}
+}
+class Arrow extends Exp{
+	String value;
+	Arrow(String v) {value = v;}
+	public String toString() {return value + "";}
+}
+class ArrowOpExp extends Exp{
+	Exp left;
+	Exp right;
+	Exp arrow;
+	ArrowOpExp() {}
+	public void setLeft(Exp l) {left = l;}
+	public void setRight(Exp r) {right = r;}
+	public void setArrow(Exp a) {arrow = a;}
+	public String toString() {
+		String s = "( " + arrow;
+		if(left != null){
+			s += " " + left + " ";
+		}
+		if(right != null){
+			s += " " + right + " ";
+		}
+		s += " )";
+		return s;
+	}
+}
+class Some extends Exp{
+	String value;
+	Some(String v) {value = v;}
+	public String toString() {return value + "";}
+}
+class One extends Exp{
+	String value;
+	One(String v) {value = v;}
+	public String toString() {return value + "";}
+}
+class Lone extends Exp{
+	String value;
+	Lone(String v) {value = v;}
+	public String toString() {return value + "";}
+}
+class Set extends Exp{
+	String value;
+	Set(String v) {value = v;}
+	public String toString() {return value + "";}
+}
+class Or extends Exp{
+	String value;
+	Or(String v) {value = v;}
+	public String toString() {return value + "";}
+}
+class And extends Exp{
+	String value;
+	And(String v) {value = v;}
+	public String toString() {return value + "";}
+}
+class DoubleImplication extends Exp{
+	String value;
+	DoubleImplication(String v) {value = v;}
+	public String toString() {return value + "";}
+}
+class Iff extends Exp{
+	String value;
+	Iff(String v) {value = v;}
+	public String toString() {return value + "";}
+}
+class Implies extends Exp{
+	String value;
+	Implies(String v) {value = v;}
+	public String toString() {return value + "";}
+}
+class Plus extends Exp{
+	String value;
+	Plus(String v) {value = v;}
+	public String toString() {return value + "";}
+}
+class Minus extends Exp{
+	String value;
+	Minus(String v) {value = v;}
+	public String toString() {return value + "";}
+}
+class PlusPlus extends Exp{
+	String value;
+	PlusPlus(String v) {value = v;}
+	public String toString() {return value + "";}
+}
+class DomainRestriction extends Exp{
+	String value;
+	DomainRestriction(String v) {value = v;}
+	public String toString() {return value + "";}
+}
+class RangeRestriction extends Exp{
+	String value;
+	RangeRestriction(String v) {value = v;}
+	public String toString() {return value + "";}
+}
+class Dot extends Exp{
+	String value;
+	Dot(String v) {value = v;}
+	public String toString() {return value + "";}
+}
+class LeftShift extends Exp{
+	String value;
+	LeftShift(String v) {value = v;}
+	public String toString() {return value + "";}
+}
+class RightShift extends Exp{
+	String value;
+	RightShift(String v) {value = v;}
+	public String toString() {return value + "";}
+}
+class UnsignedRightShift extends Exp{
+	String value;
+	UnsignedRightShift(String v) {value = v;}
+	public String toString() {return value + "";}
+}
+class Bang extends Exp{
+	String value;
+	Bang(String v) {value = v;}
+	public String toString() {return value + "";}
+}
+class Not extends Exp{
+	String value;
+	Not(String v) {value = v;}
+	public String toString() {return value + "";}
+}
+class No extends Exp{
+	String value;
+	No(String v) {value = v;}
+	public String toString() {return value + "";}
+}
+class Seq extends Exp{
+	String value;
+	Seq(String v) {value = v;}
+	public String toString() {return value + "";}
+}
+class Pound extends Exp{
+	String value;
+	Pound(String v) {value = v;}
+	public String toString() {return value + "";}
+}
+class Tilde extends Exp{
+	String value;
+	Tilde(String v) {value = v;}
+	public String toString() {return value + "";}
+}
+class ReflexiveTransitiveClosure extends Exp{
+	String value;
+	ReflexiveTransitiveClosure(String v) {value = v;}
+	public String toString() {return value + "";}
+}
+class NonReflexiveTransitiveClosure extends Exp{
+	String value;
+	NonReflexiveTransitiveClosure(String v) {value = v;}
+	public String toString() {return value + "";}
+}
+class Disjoint extends Exp{
+	String value;
+	Disjoint(String v) {value = v;}
+	public String toString() {return value + "";}
+}
+class All extends Exp{
+	String value;
+	All(String v) {value = v;}
+	public String toString() {return value + "";}
+}
+class Sum extends Exp{
+	String value;
+	Sum(String v) {value = v;}
+	public String toString() {return value + "";}
+}
+class Let extends Exp{
+	Exp name;
+	Exp op;
+	Exp expr;
+	Let() {}
+	public void setName(Exp n) {name = n;}
+	public void setOp(Exp o) {op = o;}
+	public void setExpr(Exp e) {expr = e;}
+	public String toString() {return "( " + name + " " + op + " " + expr + " )";}
+}
+class Colon extends Exp{
+	String value;
+	Colon(String v) {value = v;}
+	public String toString() {return value + "";}
+}
+class LetSym extends Exp{
+	String value;
+	LetSym(String v) {value = v;}
+	public String toString() {return value + "";}
+}
+class Decl extends Exp{
+	Exp qualifier;
+	Exp disjName;
+	Exp name;
+	Exp op;
+	Exp disjExpr;
+	Exp expr;
+	Decl() {}
+	public void setQualifier(Exp q) {qualifier = q;}
+	public void setDisjName(Exp dn) {disjName = dn;}
+	public void setName(Exp n) {name = n;}
+	public void setOp(Exp o) {op = o;}
+	public void setDisjExpr(Exp de) {disjExpr = de;}
+	public void setExpr(Exp e) {expr = e;}
+	public String toString() {
+		String s = "( ";
+		if(qualifier != null){
+			s += qualifier + " ";
+		}
+		if(disjName != null){
+			s += disjName + " ";
+		}
+		s += name + " ";
+		s += op + " ";
+		if(disjExpr != null){
+			s += disjName + " ";
+		}
+		s += expr;
+		s += ")";
+		return s;		
+	}
+}
+class Bar extends Exp{
+	String value;
+	Bar(String v) {value = v;}
+	public String toString() {return value + "";}
+}
+class BlockOrBar extends Exp{
+	Exp block;
+	Exp op;
+	Exp expr;
+	BlockOrBar() {}
+	public void setBlock(Exp bl) {block = bl;}
+	public void setBar(Exp o, Exp e) {op = o; expr = e;}
+	public String toString() { 
+		String s;
+		s = "( ";
+		if(block != null){
+			s += block + " ";
+		}
+		else if(op != null){
+			s += op + " " + expr + " ";
+		}
+		s+= ")";
+		return s; 
+	}
+}
+class Lcurly extends Exp{
+	String value;
+	Lcurly(String v) {value = v;}
+	public String toString() {return value + "";}
+}
+class Rcurly extends Exp{
+	String value;
+	Rcurly(String v) {value = v;}
+	public String toString() {return value + "";}
+}
+class Block extends Exp{
+	Exp expr;
+	Block(){}
+	public void setExpr(Exp e){expr = e;}
+	public String toString() {return "( " + expr + " )";}
+}
+class Iden extends Exp{
+	String value;
+	Iden(String v) {value = v;}
+	public String toString() {return value + "";}
+}
+class None extends Exp{
+	String value;
+	None(String v) {value = v;}
+	public String toString() {return value + "";}
+}
+class Lparen extends Exp{
+	String value;
+	Lparen(String v) {value = v;}
+	public String toString() {return value + "";}
+}
+class Rparen extends Exp{
+	String value;
+	Rparen(String v) {value = v;}
+	public String toString() {return value + "";}
+}
+class At extends Exp{
+	String value;
+	At(String v) {value = v;}
+	public String toString() {return value + "";}
+}
+class Else extends Exp{
+	String value;
+	Else(String v) {value = v;}
+	public String toString() {return value + "";}
+}
+class Run extends Exp{
+	String value;
+	Run(String v) {value = v;}
+	public String toString() {return value + "";}
+}
+class Check extends Exp{
+	String value;
+	Check(String v) {value = v;}
+	public String toString() {return value + "";}
+}
+class For extends Exp{
+	String value;
+	For(String v) {value = v;}
+	public String toString() {return value + "";}
+}
+class But extends Exp{
+	String value;
+	But(String v) {value = v;}
+	public String toString() {return value + "";}
+}
+class Abstract extends Exp{
+	String value;
+	Abstract(String v) {value = v;}
+	public String toString() {return value + "";}
+}
+class Expect extends Exp{
+	String value;
+	Expect(String v) {value = v;}
+	public String toString() {return value + "";}
+}
+class Zero extends Exp{
+	String value;
+	Zero(String v) {value = v;}
+	public String toString() {return value + "";}
+}
+class OneDigit extends Exp{
+	String value;
+	OneDigit(String v) {value = v;}
+	public String toString() {return value + "";}
+}
+class LetExpr extends Exp{
+	Exp op;
+	List<Exp> letDeclList;
+	Exp blockOrBar;
+	LetExpr(){}
+	public void setOp(Exp o){op = o;}
+	public void addletDecl(Exp l){letDeclList.add(l);}
+	public void setBlockOrBar(Exp b){blockOrBar = b;}
+	public String toString() 
+	{
+		String s;
+		s = "( ";
+		s += op + " ";
+		for(int i = 0; i < letDeclList.size(); i++){
+			s +=  letDeclList.get(i).toString() + " ";
+		}
+		s += blockOrBar + " )";
+		return s;
+	}
+}
+class DeclExpr extends Exp{
+	Exp quant;
+	List<Exp> declList;
+	Exp blockOrBar;
+	DeclExpr(){}
+	public void setQuant(Exp q){quant = q;}
+	public void addDecl(Exp d){declList.add(d);}
+	public void setBlockOrBar(Exp b){blockOrBar = b;}
+	public String toString() 
+	{
+		String s;
+		s = "( ";
+		s += quant;
+		for(int i = 0; i < declList.size(); i++){
+			s +=  declList.get(i).toString() + " ";
+		}
+		s += blockOrBar + " )";
+		return s;
+	}
+}
+class CurlyExpr extends Exp{
+	Exp lop;
+	Exp rop;
+	List<Exp> declList;
+	Exp blockOrBar;
+	CurlyExpr(){}
+	public void setLeftOp(Exp l){lop = l;}
+	public void setRightOp(Exp r){rop = r;}
+	public void addDecl(Exp d){declList.add(d);}
+	public void setBlockOrBar(Exp b){blockOrBar = b;}
+	public String toString() 
+	{
+		String s;
+		s = "( ";
+		s += lop;
+		for(int i = 0; i < declList.size(); i++){
+			s +=  declList.get(i).toString() + " ";
+		}
+		s += blockOrBar + " " + rop + " )"; 
+		return s;
+	}
+}
+class UnOpExpr extends Exp{
+	Exp unop;
+	Exp expr;
+	UnOpExpr(){}
+	public void setUnOp(Exp u){unop = u;}
+	public void setExpr(Exp e){expr = e;}
+	public String toString(){return "(Unary Operator "+ unop + " "+ expr + ")";}
+}
+
+class Fact extends Exp{
+	Exp name;
+	List<Exp> block;
+	Fact(){block = new ArrayList<Exp>();}
+	public void setName(Exp n){name = n;}
+	public void addBlock(Exp b){block.add(b);}
+	public String toString(){
+		String s = "(Fact ";
+		if(name != null){
+			s += name + " ";
+		}
+		for(int i = 0; i < block.size(); i++){
+            s +=  block.get(i).toString() + " ";
+        }
+		s += " )";
+		return s;
+	}
+}
+class Assert extends Exp{
+	Exp name;
+	Exp block;
+	Assert(){}
+	public void setName(Exp n){name = n;}
+	public void setBlock(Exp b){block = b;}
+	public String toString(){
+		String s = "(Assert ";
+		if(name != null){
+			s += name + " ";
+		}
+		s += block + " )";
+		return s;
+	}
+}
+class Function extends Exp{
+    boolean isPred;
+	Exp qualifier;
+	Exp ref;
+	Exp name;
+	List<Exp> arguments;
+	Exp expr;
+	List<Exp> block;
+	Function(){arguments = new ArrayList<Exp>(); block = new ArrayList<Exp>(); isPred = false;}
+	public void setQualifier(Exp q){qualifier = q;}
+	public void setRef(Exp r){ref = r;}
+	public void setName(Exp n){name = n;}
+	public void addArguments(Exp a){arguments.add(a);}
+	public void addBlock(Exp b){block.add(b);}
+	public void setExpr(Exp e){expr = e;}
+	public void setPredTrue() {isPred = true;};
+	public String toString(){
+		String s = "(Function ";
+		if(qualifier != null){
+			s+= qualifier + " ";
+		}
+		if(ref != null){
+			s+= ref + " ";
+		}
+		s += name + " ";
+		for(int i = 0; i < arguments.size(); i++){
+			s +=  arguments.get(i).toString() + " ";
+		}
+		if(expr != null){
+			s += "( "+ expr + " )";
+		}
+		for(int i = 0; i < block.size(); i++){
+            s +=  block.get(i).toString() + " ";
+        }
+        s += ")";
+		return s;
+	}
+}
+class Command extends Exp{
+	Exp name;
+	Exp type;
+	Exp qualname;
+	Exp scope;
+	Command(){}
+	public void setQualName(Exp q){qualname = q;}
+	public void setType(Exp r){type = r;}
+	public void setName(Exp n){name = n;}
+	public void setScope(Exp e){scope = e;}
+	public String toString(){
+		String s = "(Command ";
+		if(name != null){
+			s+= name + " ";
+		}
+		s+= type + " "; 
+		s += qualname + " ";
+		s += scope + " )";
+		return s;
+	}
+}
+class Enum extends Exp{
+	Exp name;
+	List<Exp> bodyList;
+	Enum(){bodyList = new ArrayList<Exp>();}
+	public void setName(Exp n){name = n;}
+	public void addBody(Exp a){bodyList.add(a);}
+	public String toString(){
+		String s = "(Enum ";
+		s += name + "( ";
+		for(int i = 0; i < bodyList.size(); i++){
+			s +=  bodyList.get(i).toString() + ", ";
+		}
+		s += " ) )";
+		return s;
+	}
+}
+class Signature extends Exp{
+	List<Exp> qualifierList;
+	Exp name;
+	Exp parentClass;
+	Exp wholeClass;
+	Boolean extension;
+	Boolean composition;
+	List<Exp> bodyList;
+	List<Exp> blockList;
+	Signature(){
+	    qualifierList = new ArrayList<Exp>();
+	    bodyList = new ArrayList<Exp>();
+	    blockList = new ArrayList<Exp>();
+	    extension = false;
+	    composition = false;
+	}
+	public void addQualifier(Exp a){qualifierList.add(a);}
+	public void setName(Exp n){name = n;}
+	public void setParentClass(Exp p){parentClass = p;}
+	public void setWholeClass(Exp p){wholeClass = p;}
+	public void addBody(Exp a){bodyList.add(a);}
+	public void addBlock(Exp b){blockList.add(b);}
+	public String toString(){
+		String s = "(Signature ";
+		for(int i = 0; i < qualifierList.size(); i++){
+			s +=  qualifierList.get(i).toString() + ", ";
+		}
+		s += name + "( ";
+		if(parentClass != null){
+		s += "(parent class: " + parentClass + ") ";
+		}
+		for(int i = 0; i < bodyList.size(); i++){
+			s +=  bodyList.get(i).toString() + ", ";
+		}
+		for(int i = 0; i < blockList.size(); i++){
+			s += blockList.get(i).toString() + ", ";
+		}
+		s += " ) )";
+		return s;
+	}
+}
+PARSER_END(Parser)
+
+SKIP :
+{
+  < "//" (~["\r", "\n"])* >
+| < "/*" > : ML_COMMENT_STATE
+}
+
+<ML_COMMENT_STATE> SKIP :
+{
+  < "*/" > : DEFAULT
+| < ~[] >
+}
+
+SKIP:  { " " | "\t" | "\n" | "\r" | "\r\n"}
+TOKEN: {<ZERO: "0">}
+TOKEN: {<ONEDIGIT: "1">}
+TOKEN: {<NUM: "0" | ["1"-"9"](["0"-"9"])*>}
+TOKEN: {<MODULE: "module">}
+TOKEN: {<THIS : "this">}
+TOKEN: {<OPEN: "open">}
+TOKEN: {<UNIV: "univ">}
+TOKEN: {<INT: "Int">}
+TOKEN: {<SEQINT: "seq/Int">}
+TOKEN: {<AS: "as">}
+TOKEN: {<PRIVATE: "private">}
+TOKEN: {<EXACTLY : "exactly">}
+TOKEN: {<LBRACKET : "[">}
+TOKEN: {<RBRACKET : "]">}
+TOKEN: {<COMMA : ",">}
+TOKEN: {<STROKE : "/">}
+TOKEN: {<EQSIGN: "=">}
+TOKEN: {<INCLUSION: "in">}
+TOKEN: {<LESSER: "<">}
+TOKEN: {<GREATER: ">">}
+TOKEN: {<LESSEROREQUAL: "<=">}
+TOKEN: {<GREATEROREQUAL: ">=">}
+TOKEN: {<ARROW: "->">}
+TOKEN: {<SOME: "some">}
+TOKEN: {<ONE: "one">}
+TOKEN: {<LONE: "lone">}
+TOKEN: {<SET: "set">}
+TOKEN: {<OR: "||" | "or">}
+TOKEN: {<AND: "&&" | "and" | "&">}
+TOKEN: {<DOUBLEIMPLIES: "<=>">}
+TOKEN: {<IFF: "iff">}
+TOKEN: {<IMPLIES: "=>" | "implies">}
+TOKEN: {<PLUS: "+">}
+TOKEN: {<MINUS: "-">}
+TOKEN: {<PLUSPLUS: "++">}
+TOKEN: {<DOMAINRESTRICTION: "<:">}
+TOKEN: {<RANGERESTRICTION: ":>">}
+TOKEN: {<DOT: ".">}
+TOKEN: {<LEFTSHIFT: "<<">}
+TOKEN: {<RIGHTSHIFT: ">>">}
+TOKEN: {<UNSIGNEDRIGHTSHIFT: ">>>">}
+TOKEN: {<BANG: "!">}
+TOKEN: {<NOT: "not">}
+TOKEN: {<NO: "no">}
+TOKEN: {<SEQ: "seq">}
+TOKEN: {<POUND: "#">}
+TOKEN: {<TILDE: "~">}
+TOKEN: {<REFLEXIVETRASITIVECLOSURE: "*">}
+TOKEN: {<NONREFLEXIVETRASITIVECLOSURE: "^">}
+TOKEN: {<DISJOINT: "disj">}
+TOKEN: {<ALL: "all">}
+TOKEN: {<SUM: "sum">}
+TOKEN: {<COLON: ":">}
+TOKEN: {<BAR: "|">}
+TOKEN: {<LCURLY: "{">}
+TOKEN: {<RCURLY: "}">}
+TOKEN: {<LET: "let">}
+TOKEN: {<IDEN: "iden">}
+TOKEN: {<LPAREN: "(">}
+TOKEN: {<RPAREN: ")">}
+TOKEN: {<AT: "@">}
+TOKEN: {<NONE: "none">}
+TOKEN: {<ELSE: "else">}
+TOKEN: {<FACT: "fact">}
+TOKEN: {<ASSERT: "assert">}
+TOKEN: {<FUNCTION: "fun">}
+TOKEN: {<PREDICATE: "pred">}
+TOKEN: {<RUN: "run">}
+TOKEN: {<CHECK: "check">}
+TOKEN: {<FOR: "for">}
+TOKEN: {<BUT: "but">}
+TOKEN: {<EXPECT: "expect">}
+TOKEN: {<ENUM: "enum">}
+TOKEN: {<SIGNATURE: "sig">}
+TOKEN: {<ABSTRACT: "abstract">}
+TOKEN: {<EXTENDS: "extends">}
+TOKEN: {<ID: (["a"-"z"]| ["A"-"Z"])(["a"-"z"] | ["A"-"Z"]| ["0"-"9"] | "'")*>}
+
+/** 	specification ::= [module] open* paragraph*
+*/
+
+Specification Sp(): {Exp e1; Exp e2; Specification e3; Exp e4; Exp e5;} 
+{
+	{e3 = new Specification();} 
+	(e1 = ModuleDecl() {e3.setModule(e1);})? 
+	(Sp1())?
+	(e2 = Sp2() { if(e2.getClass() == BinaryExp.class) 
+					{ 
+						e3.addOpenDecl(e2);
+					}
+				else{
+						e3.addParagraph(e2);
+					}				
+				})*
+	//(e2 = OpenDecl() {e3.addOpenDecl(e2);})*
+	//(e5 = Paragraph() {e3.addParagraph(e5);})* 
+	<EOF> {return e3;}
+}
+
+Exp Sp1(): {Exp e;}
+{
+	e = QualDecl() {return e;}
+}
+
+Exp Sp2(): {Exp e;}
+{
+	e = OpenDecl() {return e;}
+|
+	e = Paragraph() {return e;}
+}
+
+/** 	paragraph ::= factDecl | assertDecl | funDecl | cmdDecl | enumDecl | sigDecl
+*/
+
+Exp Paragraph(): {Exp e;}
+{
+	e = FactDecl() {return e;}
+|
+	e = PredDecl() {return e;}
+|
+	e = AssertDecl() {return e;}
+|
+	e = FunDecl() {return e;}
+|
+	e = CommandDecl() {return e;}
+|
+	e = EnumDecl() {return e;}
+|
+	e = SignatureDecl() {return e;}
+}
+
+/** 	module ::= "module" name  [ "["  ["exactly"] name  ("," ["exactly"] num)*    "]" ]
+*/
+
+Exp ModuleDecl(): {Exp e1; Exp e2;}
+{
+	e1 = Module() e2 = ModuleNameBracket() {e1 = new ModuleDeclaration(""+e2);} {return e1;}
+}
+
+Exp ModuleNameBracket(): {Exp e1; Exp e2;}
+{
+	e1 = QualName() (e2 = ModuleBracket() {e1 = new BinaryExp(e2, e1, e2);})? {return e1;}
+}
+
+/** 	name ::= ("this" | ID) ["/" ID]*
+*/
+
+Exp QualName(): {Exp e1; Exp e2; Exp e3; Exp e4;}
+{
+	e1 = ThisDecl() (e2 = StrokeDecl() {e1 = new BinaryExp(e2, e1, e2);} e2 = IdentifierDecl() {e1 = new BinaryExp(e2, e1, e2);})* {return e1;}
+|
+	e1 = IdentifierDecl() (e2 = StrokeDecl() {e1 = new BinaryExp(e2, e1, e2);} e3 = IdentifierDecl() {e1 = new BinaryExp(e2, e1, e3);})* {return e1;}
+}
+
+Exp StrokeDecl(): {Token n;}
+{
+	n = <STROKE> {return new Stroke(n.image);}
+}
+
+Exp IdentifierDecl(): {Token n;}
+{
+	n = <ID> {return new Id(n.image);}
+}
+
+Exp ThisDecl(): {Token n;}
+{
+	n = <THIS> {return new This(n.image);}
+}
+
+Exp Module(): {Token n;}
+{
+	n = <MODULE> {return new Module(n.image);}
+}
+
+Exp ModuleBracket(): {Exp e1; Exp e2; Exp e3; Exp e4;}
+{
+	e3 = LBracketDecl() (e1 = ExactlyDecl() e2 = IdentifierDecl() e4 = RBracketDecl() {e1 = new BinaryExp(e3, e1, e2);} {return e1;})+  e2 = IdentifierDecl() e4 = RBracketDecl() {return e2;}
+}
+
+Exp LBracketDecl(): {Token n;}
+{
+	n = <LBRACKET> {return new LBracket(n.image);}
+}
+
+Exp RBracketDecl(): {Token n;}
+{
+	n = <RBRACKET> {return new RBracket(n.image);}
+}
+
+Exp ExactlyDecl(): {Token n;}
+{
+	n = <EXACTLY> {return new Exactly(n.image);}
+}
+
+/** 	open ::= ["private"]  "open"  name  [ "[" ref,+ "]" ]  [ "as" name ]
+*/
+
+Exp OpenDecl(): {Exp e1; Exp e2;}
+{
+	e2 = OpenNameDecl() {return e2;}
+}
+
+Exp OpenNameDecl(): {Exp e1; Exp e2; Exp e3; Exp e4;}
+{
+	e1 = OpenSymDecl() e2 = QualName() (e3 = OpenRefDecl() {e1 = new BinaryExp(e1, e1, e3);})? (e4 = OpenAlias() {e1 = new BinaryExp(e4, e1, e4);})? {return e1;}
+}
+
+Exp OpenSymDecl(): {Token n;}
+{
+	n = <OPEN> {return new Open(n.image);}
+}
+
+Exp OpenRefDecl(): {Exp e1; Exp e2; Exp e3; Exp e4;}
+{
+	e1 = LBracketDecl() (e2 = RefName() (",")?)+ e4 = RBracketDecl() {return e1;}
+}
+
+/** 	ref ::= name | "univ" | "Int" | "seq/Int"
+*/
+
+Exp RefName(): {Exp e1; Exp e2; Exp e3; Exp e4;}
+{
+	e1 = QualName() {return e1;}
+|
+	e2 = UnivSymDecl() {return e2;}
+|
+	e3 = IntSymDecl() {return e3;}
+|
+	e4 = SeqIntSymDecl() {return e4;}
+}
+
+Exp CommaDecl(): {Token n;}
+{
+	n = <COMMA> {return new Comma(n.image);}
+}
+
+Exp UnivSymDecl(): {Token n;}
+{
+	n = <UNIV> {return new Univ(n.image);}
+}
+
+Exp IntSymDecl(): {Token n;}
+{
+	n = <INT> {return new Int(n.image);}
+}
+
+Exp SeqIntSymDecl(): {Token n;}
+{
+	n = <SEQINT> {return new Seqint(n.image);}
+}
+
+Exp OpenAlias(): {Exp e1; Exp e2;}
+{
+	e1 = AsSymDecl() e2 = QualName() {e1 = new BinaryExp(e1, e1, e2);} {return e1;}
+}
+
+Exp AsSymDecl(): {Token n;}
+{
+	n = <AS> {return new As(n.image);}
+}
+
+Exp QualDecl(): {Token n;}
+{
+	n = <PRIVATE> {return new Private(n.image);}
+}
+
+/** 	compareOp ::= "=" | "in" | "<" | ">" | "=<" | ">="
+*/
+
+Exp CompareOpDecl(): {Exp e;}
+{
+	e = EqualSignDecl() {return e;}
+|
+	e = InclusionDecl() {return e;}
+| 
+	e = LesserDecl() {return e;}
+|
+	e = GreaterDecl() {return e;}
+|
+	e = LesserOrEqualDecl() {return e;}
+|
+	e = GreaterOrEqualDecl() {return e;}
+}
+
+Exp EqualSignDecl(): {Token n;}
+{
+	n = <EQSIGN> {return new EqualSign(n.image);}
+}
+
+Exp InclusionDecl(): {Token n;}
+{
+	n = <INCLUSION> {return new Inclusion(n.image);}
+}
+
+Exp LesserDecl(): {Token n;}
+{
+	n = <LESSER> {return new Lesser(n.image);}
+}
+
+Exp GreaterDecl(): {Token n;}
+{
+	n = <GREATER> {return new Greater(n.image);}
+}
+
+Exp LesserOrEqualDecl(): {Token n;}
+{
+	n = <LESSEROREQUAL> {return new LesserOrEqual(n.image);}
+}
+
+Exp GreaterOrEqualDecl(): {Token n;}
+{
+	n = <GREATEROREQUAL> {return new GreaterOrEqual(n.image);}
+}
+
+/** 	arrowOp ::= ["some"|"one"|"lone"|"set"] "->" ["some"|"one"|"lone"|"set"]
+*/
+
+Exp ArrowOpDecl(): {Exp e1; Exp e2; Exp e3; ArrowOpExp e4;}
+{
+	{e4 = new ArrowOpExp();} 
+	(e1 = ArrowArity() {e4.setLeft(e1);})?
+	e2 = ArrowOpSymDecl() {e4.setArrow(e2);}
+	(LOOKAHEAD(2) e3 = ArrowArity() {e4.setRight(e3);})? {return e4;}
+}
+
+Exp ArrowOpSymDecl(): {Token n;}
+{
+	n = <ARROW> {return new Arrow(n.image);}
+}
+
+Exp ArrowArity(): {Exp e;}
+{
+	e = SomeSymDecl() {return e;}
+|
+	e = OneSymDecl() {return e;}
+|
+	e = LoneSymDecl() {return e;}
+|
+	e = SetSymDecl() {return e;}
+}
+
+Exp SomeSymDecl(): {Token n;}
+{
+	n = <SOME> {return new Some(n.image);}
+}
+
+Exp OneSymDecl(): {Token n;}
+{
+	n = <ONE> {return new One(n.image);}
+}
+
+Exp LoneSymDecl(): {Token n;}
+{
+	n = <LONE> {return new Lone(n.image);}
+}
+
+Exp SetSymDecl(): {Token n;}
+{
+	n = <SET> {return new Set(n.image);}
+}
+
+/** 	binOp ::= "||" | "or" | "&&" | "and" | "&" | "<=>" | "iff"
+        | "=>" | "implies" | "+" | "-" | "++" | "<:" | ":>" | "." | "<<" | ">>" | ">>>"
+*/
+
+Exp BinOpDecl(): {Exp e;}
+{
+	e = AndDecl() {return e;}
+|
+	e = OrDecl() {return e;}
+|
+	e = DoubleImplicationDecl() {return e;}
+|
+	e = IffDecl() {return e;}
+|
+	e = PlusDecl() {return e;}
+|
+	e = MinusDecl() {return e;}
+|
+	e = PlusPlusDecl() {return e;}
+|
+	e = DomainRestrictionDecl() {return e;}
+|
+	e = RangeRestrictionDecl() {return e;}
+|
+	e = DotDecl() {return e;}
+|
+	e = LeftShiftDecl() {return e;}
+|
+	e = RightShiftDecl() {return e;}
+|
+	e = UnsignedRightShiftDecl() {return e;}
+}
+
+Exp AndDecl(): {Token n;}
+{
+	n = <AND> {return new And(n.image);}
+}
+
+Exp OrDecl(): {Token n;}
+{
+	n = <OR> {return new Or(n.image);}
+}
+
+Exp DoubleImplicationDecl(): {Token n;}
+{
+	n = <DOUBLEIMPLIES> {return new DoubleImplication (n.image);}
+}
+
+Exp IffDecl(): {Token n;}
+{
+	n = <IFF> {return new Iff(n.image);}
+}
+
+Exp ImpliesDecl(): {Token n;}
+{
+	n = <IMPLIES> {return new Implies(n.image);}
+}
+
+Exp PlusDecl(): {Token n;}
+{
+	n = <PLUS> {return new Plus(n.image);}
+}
+
+Exp MinusDecl(): {Token n;}
+{
+	n = <MINUS> {return new Minus(n.image);}
+}
+
+Exp PlusPlusDecl(): {Token n;}
+{
+	n = <PLUSPLUS> {return new PlusPlus(n.image);}
+}
+
+Exp DomainRestrictionDecl(): {Token n;}
+{
+	n = <DOMAINRESTRICTION> {return new DomainRestriction(n.image);}
+}
+
+Exp RangeRestrictionDecl(): {Token n;}
+{
+	n = <RANGERESTRICTION> {return new RangeRestriction(n.image);}
+}
+
+Exp DotDecl(): {Token n;}
+{
+	n = <DOT> {return new Dot(n.image);}
+}
+
+Exp LeftShiftDecl(): {Token n;}
+{
+	n = <LEFTSHIFT> {return new LeftShift(n.image);}
+}
+
+Exp RightShiftDecl(): {Token n;}
+{
+	n = <RIGHTSHIFT> {return new RightShift(n.image);}
+}
+
+Exp UnsignedRightShiftDecl(): {Token n;}
+{
+	n = <UNSIGNEDRIGHTSHIFT> {return new UnsignedRightShift(n.image);}
+}
+
+/** 	unOp ::= "!" | "not" | "no" | "some" | "lone" | "one" | "set" | "seq" | "#" | "~" | "*" | "^"
+*/
+
+Exp UnOpDecl(): {Exp e;}
+{
+	e = BangDecl() {return e;}
+|
+	e = SetSymDecl() {return e;}
+|
+	e = SeqDecl() {return e;}
+|
+	e = PoundDecl() {return e;}
+|
+	e = TildeDecl() {return e;}
+|
+	e = ReflexiveTransitiveClosureDecl() {return e;}
+|
+	e = NonReflexiveTransitiveClosureDecl() {return e;}
+}
+
+Exp BangDecl(): {Token n;}
+{
+	n = <BANG> {return new Bang(n.image);}
+}
+
+Exp NotDecl(): {Token n;}
+{
+	n = <NOT> {return new Not(n.image);}
+}
+
+Exp NoDecl(): {Token n;}
+{
+	n = <NO> {return new No(n.image);}
+}
+
+Exp SeqDecl(): {Token n;}
+{
+	n = <SEQ> {return new Seq(n.image);}
+}
+
+Exp PoundDecl(): {Token n;}
+{
+	n = <POUND> {return new Pound(n.image);}
+}
+
+Exp TildeDecl(): {Token n;}
+{
+	n = <TILDE> {return new Tilde(n.image);}
+}
+
+Exp ReflexiveTransitiveClosureDecl(): {Token n;}
+{
+	n = <REFLEXIVETRASITIVECLOSURE> {return new ReflexiveTransitiveClosure(n.image);}
+}
+
+Exp NonReflexiveTransitiveClosureDecl(): {Token n;}
+{
+	n = <NONREFLEXIVETRASITIVECLOSURE> {return new NonReflexiveTransitiveClosure(n.image);}
+}
+
+Exp QuantDecl(): {Exp e;}
+{
+	e = AllDecl() {return e;}
+|
+	e = SumDecl() {return e;}
+}
+
+Exp AllDecl(): {Token n;}
+{
+	n = <ALL> {return new All(n.image);}
+}
+
+Exp SumDecl(): {Token n;}
+{
+	n = <SUM> {return new Sum(n.image);}
+}
+
+/** LetDecl ::= name "=" expr 
+*/
+
+Exp LetDecl(): {Let e1; Exp e2; Exp e3; Exp e4;}
+{
+	{e1 = new Let();} e2 = QualName() {e1.setName(e2);} e3 = EqualSignDecl() {e1.setOp(e3);} e4 = ExprDeclE() {e1.setExpr(e4);} {return e1;}
+}
+
+/** DeclDecl ::= ["private"] ["disj"] name,+ ":" ["disj"] expr */
+
+Exp DeclDecl(): {Decl e1; Exp e2; Exp e3; Exp e4; Exp e5; Exp e6; Exp e7;Exp e8; Exp e9;}
+{
+	{e1 = new Decl();} (e2 = QualDecl() {e1.setQualifier(e2);})? (e3 = DisjDecl() {e1.setDisjName(e3);})?
+	e4 = QualName() (",")? (e8 = QualName() {e4 = new UnaryExp(e4, e8);} (",")?)* {e1.setName(e4);} e5 = ColonDecl() {e1.setOp(e5);} (e6 = DisjDecl() {e1.setDisjName(e5);})? 
+	e7 = ExprDeclE() {e1.setExpr(e7);} {return e1;} 
+}
+
+Exp ColonDecl(): {Token n;}
+{
+	n = <COLON> {return new Colon(n.image);}
+}
+
+Exp DisjDecl(): {Token n;}
+{
+	n = <DISJOINT> {return new Disjoint(n.image);}
+}
+
+/** BlockOrBarDecl ::= block | "|" expr */
+
+Exp BlockOrBarDecl(): {BlockOrBar e1; Exp e2; Exp e3;}
+{
+	LOOKAHEAD(1) {e1 = new BlockOrBar();} e2 = BarDecl() e3 = ExprDeclE() {e1.setBar(e2, e3);} {return e1;}
+|
+    LOOKAHEAD(1) {e1 = new BlockOrBar();} e2 = BlockDecl() {e1.setBlock(e2);} {return e1;}
+}
+
+Exp BarDecl(): {Token n;}
+{
+	n = <BAR> {return new Bar(n.image);}
+}
+
+/** BlockDecl ::= "{" expr* "}" */
+
+Exp BlockDecl(): {Block e1; Exp e2; Exp e3; Exp e4;}
+{
+	{e1 = new Block();} 
+	"{" 
+	((e3 = ExprDeclE() {e1.setExpr(e3);}))*
+	"}" {return e1;}
+}
+
+Exp LcurlyDecl(): {Token n;}
+{
+	n = <LCURLY> {return new Lcurly(n.image);}
+}
+
+Exp RcurlyDecl(): {Token n;}
+{
+	n = <RCURLY> {return new Rcurly(n.image);}
+}
+
+/**
+		expr ::= "let" letDecl,+ blockOrBar
+       | quant decl,+    blockOrBar
+       | unOp expr
+       | expr binOp   expr
+       | expr arrowOp expr
+       | expr ["!"|"not"] compareOp expr
+       | expr ("=>"|"implies") expr "else" expr
+       | expr "[" expr,* "]"
+       |     number
+       | "-" number
+       | "none"
+       | "iden"
+       | "univ"
+       | "Int"
+       | "seq/Int"
+       | "(" expr ")"
+       | ["@"] name
+       | block
+       | "{" decl,+ blockOrBar "}"
+*/
+
+Exp ExprDeclE(): {Exp e1; Exp e2; Exp e3;}
+{
+	e1 = B() (LOOKAHEAD(2) e2 = OrDecl() e3 = B() {e1 = new BinaryExp(e2,e1,e3);})* {return e1;}
+}
+
+Exp B(): {Exp e1; Exp e2; Exp e3;}
+{
+	e1 = C() (LOOKAHEAD(2) e2 = DoubleImplicationDecl() e3 = C() {e1 = new BinaryExp(e2,e1,e3);})* {return e1;}
+}
+
+Exp C(): {Exp e1; Exp e2; Exp e3;}
+{
+	e1 = D() (LOOKAHEAD(2) e2 = CC() e3 = D() {e1 = new BinaryExp(e2,e1,e3);})* {return e1;}
+}
+
+Exp CC(): {Exp e1;}
+{
+	e1 = ImpliesDecl() {return e1;}
+|
+	e1 = ElseDecl() {return e1;}
+}
+
+Exp D(): {Exp e1; Exp e2; Exp e3;}
+{
+	e1 = E() (LOOKAHEAD(2) e2 = AndDecl() e3 = E() {e1 = new BinaryExp(e2,e1,e3);})* {return e1;}
+}
+
+Exp E(): {Exp e1; Exp e2; Exp e3;}
+{
+	e1 = F() (LOOKAHEAD(2) e2 = BangDecl() e3 = F() {e1 = new BinaryExp(e2,e1,e3);})* {return e1;}
+}
+
+Exp F(): {Exp e1; Exp e2; Exp e3;}
+{
+	e1 = G() (LOOKAHEAD(2) e2 = FF() e3 = G() {e1 = new BinaryExp(e2,e1,e3);})* {return e1;}
+}
+
+Exp FF(): {Exp e1; Exp e2;}
+{
+	e1 = InclusionDecl() {return e1;}
+|
+	e1 = EqualSignDecl() {return e1;}
+|
+	e1 = LesserDecl() {return e1;}
+|
+	e1 = GreaterDecl() {return e1;}
+|
+	e1 = LesserOrEqualDecl() {return e1;}
+|
+	e1 = GreaterOrEqualDecl() {return e1;}
+|
+	e1 = BangDecl() e2 = FFF() {e1 = new UnaryExp(e1,e2);} {return e1;}
+}
+
+Exp FFF(): {Exp e1;}
+{
+	e1 = InclusionDecl() {return e1;}
+|
+	e1 = EqualSignDecl() {return e1;}
+|
+	e1 = LesserDecl() {return e1;}
+|
+	e1 = GreaterDecl() {return e1;}
+|
+	e1 = LesserOrEqualDecl() {return e1;}
+|
+	e1 = GreaterOrEqualDecl() {return e1;}
+}
+
+Exp G(): {Exp e1; Exp e2; Exp e3;}
+{
+	e1 = H() (LOOKAHEAD(2) e2 = GG() e3 = H() {e1 = new BinaryExp(e2,e1,e3);})* {return e1;}
+}
+	
+Exp GG(): {Exp e1; Exp e2;}
+{
+	e1 = LeftShiftDecl() {return e1;}
+|
+	e1 = RightShiftDecl() {return e1;}
+|
+	e1 = UnsignedRightShiftDecl() {return e1;}
+}
+
+Exp H(): {Exp e1; Exp e2; Exp e3;}
+{
+	e1 = I() (LOOKAHEAD(2) e2 = HH() e3 = I() {e1 = new BinaryExp(e2,e1,e3);})* {return e1;}
+}
+
+Exp HH(): {Exp e1; Exp e2;}
+{
+	e1 = PlusDecl() {return e1;}
+|
+	e1 = MinusDecl() {return e1;}
+}
+
+Exp I(): {Exp e1; Exp e2; Exp e3;}
+{
+	e1 = J() (LOOKAHEAD(2) e2 = PoundDecl() e3 = J() {e1 = new BinaryExp(e2,e1,e3);})* {return e1;}
+}
+
+Exp J(): {Exp e1; Exp e2; Exp e3;}
+{
+	e1 = K() (LOOKAHEAD(2) e2 = PlusPlusDecl() e3 = K() {e1 = new BinaryExp(e2,e1,e3);})* {return e1;}
+}
+
+Exp K(): {Exp e1; Exp e2; Exp e3;}
+{
+	e1 = L() (LOOKAHEAD(2) e2 = AndDecl() e3 = L() {e1 = new BinaryExp(e2,e1,e3);})* {return e1;}
+}
+
+Exp L(): {Exp e1; Exp e2; Exp e3;}
+{
+	e1 = M() (LOOKAHEAD(2) e2 = ArrowOpDecl() e3 = M() {e1 = new BinaryExp(e2,e1,e3);})* {return e1;}
+}
+
+Exp M(): {Exp e1; Exp e2; Exp e3;}
+{
+	e1 = N() (LOOKAHEAD(2) e2 = DomainRestrictionDecl() e3 = N() {e1 = new BinaryExp(e2,e1,e3);})* {return e1;}
+}
+
+Exp N(): {Exp e1; Exp e2; Exp e3;}
+{
+	e1 = NN() (LOOKAHEAD(2) e2 = RangeRestrictionDecl() e3 = NN() {e1 = new BinaryExp(e2,e1,e3);})* {return e1;}
+}
+
+Exp NN(): {Exp e1; Exp e2; Exp e3; Exp e4;}
+{
+	e1 = O() (LOOKAHEAD(2) e2 = LBracketDecl()  (e3 = O()(",")?{e1 = new UnaryExp(e1, e3);})* e4 = RBracketDecl())* {return e1;}
+}
+
+Exp O(): {Exp e1; Exp e2; Exp e3;}
+{
+	e1 = P() (LOOKAHEAD(2) e2 = DotDecl() e3 = P() {e1 = new BinaryExp(e2,e1,e3);})* {return e1;}
+}
+
+/** expr ::= "let" letDecl,+ blockOrBar
+       | quant decl,+    blockOrBar
+       | unOp expr
+       | expr binOp   expr
+       | expr arrowOp expr
+       | expr ["!"|"not"] compareOp expr
+       | expr ("=>"|"implies") expr "else" expr
+       | expr "[" expr,* "]"
+       |     number
+       | "-" number
+       | "none"
+       | "iden"
+       | "univ"
+       | "Int"
+       | "seq/Int"
+       | "(" expr ")"
+       | ["@"] name
+       | block
+       | "{" decl,+ blockOrBar "}"
+*/
+
+Exp P(): {Exp e1; Exp e2; Exp e3; Exp e4;}
+{
+	e1 = NumberDecl() {return e1;}
+|
+	e1 = NoneDecl() {return e1;}
+|
+	e1 = IdenDecl() {return e1;}
+|
+	e1 = UnivSymDecl() {return e1;}
+|
+	e1 = IntSymDecl() {return e1;}
+|
+	e1 = SeqIntSymDecl() {return e1;}
+|
+	"(" e1 = ExprDeclE() ")" {return e1;}
+|
+	e1 = AtDecl() e2 = QualName() {e1 = new UnaryExp(e1, e2);} {return e1;}
+|
+    "[" (e1 = ExprDeclE() (",")?)* "]"
+|
+    e1 = NotDecl() e2 = UnaryOrCompExpr() {e1 = new UnaryExp(e1, e2);} {return e1;}
+|
+    e1 = CompExpr() {return e1;}
+|
+    LOOKAHEAD(5) e1 = ImpliesDeclExpr() {return e1;}
+|
+    e1 = BinOpExprDecl() {return e1;}
+|
+	LOOKAHEAD(5) e1 = UnOpExprDecl() {return e1;}
+|
+    LOOKAHEAD(5) e1 = NoDecl() e2 = ExprDeclE() {e1 = new UnaryExp(e1, e2);} {return e1;}
+|
+	LOOKAHEAD(5) e1 = SomeSymDecl() e2 = ExprDeclE() {e1 = new UnaryExp(e1, e2);} {return e1;}
+|
+	LOOKAHEAD(5) e1 = LoneSymDecl() e2 = ExprDeclE() {e1 = new UnaryExp(e1, e2);} {return e1;}
+|
+	LOOKAHEAD(5) e1 = OneSymDecl() e2 = ExprDeclE() {e1 = new UnaryExp(e1, e2);} {return e1;}
+|
+	LOOKAHEAD(5)e1 = QuantDecl() e2 = DeclDecl() {e1 = new UnaryExp(e1, e2);} (LOOKAHEAD(2) (",")? e3 = DeclDecl(){e1 = new UnaryExp(e1, e3);})* e4 = BlockOrBarDecl() {e1 = new UnaryExp(e1, e4);}{return e1;}
+|
+	LOOKAHEAD(5) e1 = NoDecl() e2 = DeclDecl() {e1 = new UnaryExp(e1, e2);} (LOOKAHEAD(2) (",")? e3 = DeclDecl(){e1 = new UnaryExp(e1, e3);})* e4 = BlockOrBarDecl() {e1 = new UnaryExp(e1, e4);} {return e1;}
+|
+	LOOKAHEAD(5) e1 = SomeSymDecl() e2 = DeclDecl() {e1 = new UnaryExp(e1, e2);} (LOOKAHEAD(2) (",")? e3 = DeclDecl(){e1 = new UnaryExp(e1, e3);})* e4 = BlockOrBarDecl() {e1 = new UnaryExp(e1, e4);} {return e1;}
+|
+	LOOKAHEAD(5) e1 = LoneSymDecl() e2 = DeclDecl() {e1 = new UnaryExp(e1, e2);} (LOOKAHEAD(2) (",")? e3 = DeclDecl(){e1 = new UnaryExp(e1, e3);})* e4 = BlockOrBarDecl() {e1 = new UnaryExp(e1, e4);} {return e1;}
+|
+	LOOKAHEAD(5) e1 = OneSymDecl() e2 = DeclDecl() {e1 = new UnaryExp(e1, e2);} (LOOKAHEAD(2) (",")? e3 = DeclDecl(){e1 = new UnaryExp(e1, e3);})* e4 = BlockOrBarDecl() {e1 = new UnaryExp(e1, e4);} {return e1;}
+|
+	"let" e1 = LetDecl() (LOOKAHEAD(2) (",")? e2 = LetDecl(){e1 = new UnaryExp(e1, e2);})* e3 = BlockOrBarDecl() {e1 = new UnaryExp(e1, e3);}{return e1;}
+|
+	e1 = LcurlyDecl() e2 = PPP() {e1 = new UnaryExp(e1,e2);} {return e1;}
+|
+	e1 = QualName() {return e1;}
+}
+
+Exp PP(): {Exp e1; Exp e2; Exp e3;}
+{
+	LOOKAHEAD(1) "|" e1 = ExprDeclE() {return e1;}
+|
+	LOOKAHEAD(1) e1 = ExprDeclE() {return e1;}
+}
+
+Exp PPP(): {Exp e1; Exp e2; Exp e3;}
+{
+	LOOKAHEAD(2) e2 = ExprDeclE() e3 = RcurlyDecl() {e1 = new BinaryExp(e3,e2,e3);} {return e2;}
+|
+	LOOKAHEAD(2) e1 = DeclDecl() (LOOKAHEAD(2) (",")? e2 = DeclDecl(){e1 = new UnaryExp(e1, e2);})* e3 = BlockOrBarDecl() {e1 = new UnaryExp(e1, e3);} "}" {return e1;}
+} 
+
+Exp PPPP(): {Exp e1; Exp e2; Exp e3; Exp e4;}
+{
+	LOOKAHEAD(2) e2 = ExprDeclE() {return e2;}
+|
+	LOOKAHEAD(4) e2 = DeclDecl() e4 = BlockOrBarDecl() {e2 = new UnaryExp(e2, e4);}{return e2;}
+}
+
+Exp LetSymDecl(): {Token n;}
+{
+	n = <LET> {return new LetSym(n.image);}
+}
+
+/**		expr ::= unOp expr
+*/
+
+Exp UnOpExprDecl(): {Exp e1; Exp e2; UnaryExp e3;}
+{
+	 {e3 = new UnaryExp();} e1 = UnOpDecl() e2 = ExprDeclE() {e3.setOp(e1); e3.setExp(e2); return e3;}
+}
+
+Exp BinOpExprDecl(): {Exp e1; Exp e2; UnaryExp e3;}
+{
+    {e3 = new UnaryExp();} e1 = BinOpDecl() e2 = ExprDeclE() {e3.setOp(e1); e3.setExp(e2);} {return e3;}
+}
+
+Exp ImpliesDeclExpr(): {Exp e1; Exp e2; Exp e3;}{
+
+    e1 = ImpliesDecl() e2 = ExprDeclE() {e1 = new UnaryExp(e1, e2);} ("else" e3 = ExprDeclE() {e1 = new UnaryExp(e1, e3);})? {return e1;}
+}
+
+Exp UnaryOrCompExpr(): {Exp e1; Exp e2; UnaryExp e3;}
+{
+    {e3 = new UnaryExp();} e1 = CompareOpDecl() e2 = ExprDeclE() {e3.setOp(e1); e3.setExp(e2); return e3;}
+|
+    e1 = ExprDeclE() {return e1;}
+}
+
+Exp CompExpr(): {Exp e1; Exp e2; UnaryExp e3;}
+{
+    {e3 = new UnaryExp();} e1 = CompareOpDecl() e2 = ExprDeclE() {e3.setOp(e1); e3.setExp(e2); return e3;}
+}
+
+Exp NumberDecl(): {Token n;}
+{
+	n = <NUM> {return new Id(n.image);}
+}
+
+Exp NoneDecl(): {Token n;}
+{
+	n = <NONE> {return new None(n.image);}
+}
+
+Exp IdenDecl(): {Token n;}
+{
+	n = <IDEN> {return new Iden(n.image);}
+}
+
+Exp LparenDecl(): {Token n;}
+{
+	n = <LPAREN> {return new Lparen(n.image);}
+}
+
+Exp RparenDecl(): {Token n;}
+{
+	n = <RPAREN> {return new Rparen(n.image);}
+}
+
+Exp AtDecl(): {Token n;}
+{
+	n = <AT> {return new At(n.image);}
+}
+
+Exp ElseDecl(): {Token n;}
+{
+	n = <ELSE> {return new Else(n.image);}
+}
+
+/** 	factDecl ::= "fact" [name] block
+*/
+
+Exp FactDecl(): {Fact f; Exp e1; Exp e2;}
+{
+	{f = new Fact();} "fact" (e1 = QualName() {f.setName(e1);})?
+    "{"
+    (e2 = ExprDeclE() {f.addBlock(e2);})*
+    "}"
+	{return f;}
+}
+
+/** 	assertDecl ::= "assert" [name] block
+*/
+
+Exp AssertDecl(): {Fact f; Exp e1; Exp e2;}
+{
+	{f = new Fact();} "assert" (e1 = QualName() {f.setName(e1);})?
+    "{"
+    (e2 = ExprDeclE() {f.addBlock(e2);})*
+    "}"
+    {return f;}
+}
+
+/** 	funDecl ::= ["private"] "fun" [ref "."] name "(" decl,* ")" ":" expr block
+		funDecl ::= ["private"] "fun" [ref "."] name "[" decl,* "]" ":" expr block
+		funDecl ::= ["private"] "fun" [ref "."] name                ":" expr block
+*/
+
+Exp FunDecl(): {Function f; Exp e1; Exp e2; Exp e3; Exp e4; Exp e5; Exp e6; Exp e7; Exp e8;}
+{
+	{f = new Function();} "fun" 
+	(LOOKAHEAD(2) e2 = RefName() "." {f.setRef(e2);})? e3 = QualName() {f.setName(e3);} 
+	("(")?("[")? (e4 = DeclDecl() {f.addArguments(e4);}(",")?)* ("]")?(")")? ":"
+	e5 = ExprDeclE() {f.setExpr(e5);} 
+	e6 = LcurlyDecl() (e7 = ExprDeclE() {f.addBlock(e7);} {e6 = new UnaryExp(e6,e7);})* e8 = RcurlyDecl() {e6 = new BinaryExp(e8,e6,e8);}
+	{return f;}
+}
+
+/** 	predDecl ::= ["private"] "pred" [ref "."] name "(" decl,* ")" block
+		predDecl ::= ["private"] "pred" [ref "."] name "[" decl,* "]" block
+		predDecl ::= ["private"] "pred" [ref "."] name                block
+*/
+
+Exp PredDecl(): {Function f; Exp e1; Exp e2; Exp e3; Exp e4; Exp e5; Exp e6; Exp e7; Exp e8;}
+{
+	{f = new Function(); f.setPredTrue();} ("pred")
+	(LOOKAHEAD(2) e2 = RefName() "." {f.setRef(e2);})? e3 = QualName() {f.setName(e3);} 
+	("(")?("[")? (e4 = DeclDecl() {f.addArguments(e4);}(",")?)* ("]")?(")")?
+	e6 = LcurlyDecl() (e7 = ExprDeclE() {f.addBlock(e7);} {e6 = new UnaryExp(e6,e7);})* e8 = RcurlyDecl() {e6 = new BinaryExp(e8,e6,e8);}
+	{return f;}
+}
+
+/** 	cmdDecl ::= [name ":"] ("run"|"check") (name|block) scope
+*/
+
+Exp CommandDecl(): {Command c; Exp e1; Exp e2; Exp e3; Exp e4; Exp e5;}
+{
+	{c = new Command();} (e1 = QualName() {c.setName(e1);} ":")? e2 = RunCheckDecl() {c.setType(e2);} 
+	e3 = NameBlock() {c.setQualName(e3);} (e4 = ScopeDecl() {c.setScope(e4);})? {return c;}
+}
+
+/** 	RunCheckDecl ::= ("run"|"check")
+*/
+
+Exp RunCheckDecl(): {Token n;}
+{
+	n = <RUN> {return new Run(n.image);}
+|
+	n = <CHECK> {return new Check(n.image);}
+}
+
+/**		NameBlock ::= (name|block)
+*/
+
+Exp NameBlock(): {Exp e1; Exp e2; Exp e3;}
+{
+	e1 = QualName() {return e1;}
+|
+	e1 = LcurlyDecl() (e2 = ExprDeclE() {e1 = new UnaryExp(e1,e2);})* e3 = RcurlyDecl() {e1 = new BinaryExp(e3,e1,e3);}
+}
+
+/**		scope ::= "for" number                   ["expect" (0|1)]
+		scope ::= "for" number "but" typescope,+ ["expect" (0|1)]
+		scope ::= "for"              typescope,+ ["expect" (0|1)]
+		scope ::=                                ["expect" (0|1)]
+*/
+
+Exp ScopeDecl(): {Exp e1; Exp e2;}
+{
+        e1 = ForDecl() e2 = ScopeDeclPrime() {e1 = new BinaryExp(e2, e1, e2);} {return e1;}
+}
+
+Exp ScopeDeclPrime(): {Exp e1; Exp e2; Exp e3; Exp e4;}
+{
+    LOOKAHEAD(2) e1 = NumberDecl() e2 = ButDecl() {e1 = new BinaryExp(e2,e1,e2);}
+        (e3 = TypescopeDecl() {e1 = new BinaryExp(e3,e1,e3);})+
+        (e4 = ExpectDecl() {e1 = new BinaryExp(e4,e1,e4);})?
+        {return e1;}
+|
+    LOOKAHEAD(2) (e1 = TypescopeDecl())+
+        (e2 = ExpectDecl() {e1 = new BinaryExp(e2,e1,e2);})?
+        {return e1;}
+}
+
+/** 	typescope ::= ["exactly"] number [name|"int"|"seq"]
+*/
+
+Exp TypescopeDecl(): {Exp e1; Exp e2; Exp e3;}
+{
+	(e1 = ExactlyDecl())? e2 = NumberDecl() (LOOKAHEAD(2) e3 = TypescopeDecl1() {e2 = new BinaryExp(e3,e2,e3);})? {return e2;}
+}
+
+Exp TypescopeDecl1(): {Exp e1;}
+{	
+	e1 = QualName() {return e1;}
+|
+	e1 = IntSymDecl() {return e1;}
+|
+	e1 = SeqDecl() {return e1;}
+}
+
+Exp ForDecl(): {Token n;}
+{
+	n = <FOR>{return new For(n.image);}
+}
+
+Exp ButDecl(): {Token n;}
+{
+	n = <BUT>{return new But(n.image);}
+}
+
+Exp ExpectDecl(): {Exp e1; Exp e2;}
+{
+	e1 = ExpectSymDecl() e2 = ZeroOneDecl() {e1 = new BinaryExp(e1,e1,e2); return e1;}
+}
+
+Exp ExpectSymDecl(): {Token n;}
+{
+	n = <EXPECT> {return new Expect(n.image);}
+}
+
+Exp ZeroOneDecl(): {Token n;}
+{
+	n = <ZERO> {return new Zero(n.image);}
+|
+	n = <ONEDIGIT> {return new OneDigit(n.image);} 
+}
+
+/* 		enumDecl ::= "enum" name "{" name  ("," name)*  "}"
+*/
+
+Exp EnumDecl(): {Enum e; Exp e1; Exp e2; Exp e3;}
+{
+	{e = new Enum();} "enum" e1 = QualName() {e.setName(e1);} "{" e2 = QualName() {e.addBody(e2);}
+	("," e3 = QualName() {e.addBody(e3);})* "}" {return e;}
+}
+
+/** 	sigDecl ::= sigQual* "sig" name,+ [sigExt] 
+		"{" decl,* "}" [block] 
+*/
+
+Exp SignatureDecl(): {Signature s; Exp e1; Exp e2; Exp e3;
+ Exp e4; Exp e5; Exp e6; Exp e7; Exp e8;}
+{
+	{ s = new Signature(); } 
+	( e1 = SigQualDecl() { s.addQualifier(e1); } )* 
+	"sig" e2 = QualName() 
+	( (",")? e3 = QualName() { e2 = new UnaryExp(e2,e3); } )*
+	{s.setName(e2);}
+	( e4 = SigExtDecl(s))*
+	"{" ( e5 = DeclDecl() {s.addBody(e5);} (",")? )* "}"
+	( e6 = LcurlyDecl() ( e7 = ExprDeclE() 
+	{e6 = new UnaryExp(e6,e7);} {s.addBlock(e7);} )*
+	e8 = RcurlyDecl() {e6 = new BinaryExp(e8,e6,e8);} )?
+	{return s;}
+}
+
+/** 	sigQual ::= "abstract" | "lone" | "one" | "some" | "private" 
+*/
+
+Exp SigQualDecl(): {Exp e;}
+{
+	e = AbstractSymDecl() {return e;}
+|
+	e = LoneSymDecl() {return e;}
+|
+	e = OneSymDecl() {return e;}
+|
+	e = SomeSymDecl() {return e;}
+}
+
+Exp AbstractSymDecl(): {Token n;}
+{	
+	n = <ABSTRACT> {return new Abstract(n.image);}
+
+}
+
+/** 	sigExt ::= "extends" ref
+		sigExt ::= "in" ref ["+" ref]* 
+*/
+
+Exp SigExtDecl(Signature s): {Exp e1; Exp e2;}
+{
+	"extends" e1 = RefName() {s.extension = true;} {s.setParentClass(e1);} {return e1;}
+|
+	"in" e1 = RefName() (("+")? (e2 = RefName() {e1 = new UnaryExp(e1,e2);})+)?
+	{s.composition = true;} {s.setWholeClass(e1);}{return e1;}
+}
